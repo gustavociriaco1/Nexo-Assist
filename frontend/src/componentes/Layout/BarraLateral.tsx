@@ -1,5 +1,5 @@
 import { Box, Typography, List, ListItem, ListItemButton, ListItemText, Avatar } from '@mui/material';
-import { ChatBubbleOutlined, PersonOutlined, Logout } from '@mui/icons-material';
+import { ChatBubbleOutlined, PersonOutlined, Logout,AssignmentOutlined } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom'; // <-- Adicionado
 
 export default function BarraLateral() {
@@ -15,23 +15,22 @@ export default function BarraLateral() {
 
       <List sx={{ px: 2, flex: 1 }}>
         <ListItem disablePadding sx={{ mb: 0.5 }}>
-          {/* Adicionado o onClick e validação de cor no selected */}
-          <ListItemButton 
-            selected={local.pathname === '/atendimento'}
-            onClick={() => navegar('/atendimento')}
-            sx={{ borderRadius: 2, color: local.pathname === '/atendimento' ? '#0056b3' : 'text.secondary', '&.Mui-selected': { bgcolor: '#f0f7ff' } }}
-          >
+          <ListItemButton selected={local.pathname === '/atendimento'} onClick={() => navegar('/atendimento')} sx={{ borderRadius: 2, color: local.pathname === '/atendimento' ? '#0056b3' : 'text.secondary', '&.Mui-selected': { bgcolor: '#f0f7ff' } }}>
             <ChatBubbleOutlined sx={{ mr: 2, fontSize: 20 }} />
             <ListItemText primary={<Typography sx={{ fontSize: '0.9rem', fontWeight: local.pathname === '/atendimento' ? 'bold' : 'medium' }}>Atendimento</Typography>} />
           </ListItemButton>
         </ListItem>
+        
+        {/* Novo botão do Console */}
+        <ListItem disablePadding sx={{ mb: 0.5 }}>
+          <ListItemButton selected={local.pathname === '/console'} onClick={() => navegar('/console')} sx={{ borderRadius: 2, color: local.pathname === '/console' ? '#0056b3' : 'text.secondary', '&.Mui-selected': { bgcolor: '#f0f7ff' } }}>
+            <AssignmentOutlined sx={{ mr: 2, fontSize: 20 }} />
+            <ListItemText primary={<Typography sx={{ fontSize: '0.9rem', fontWeight: local.pathname === '/console' ? 'bold' : 'medium' }}>Fila (Console)</Typography>} />
+          </ListItemButton>
+        </ListItem>
+
         <ListItem disablePadding>
-          {/* Adicionado o onClick e validação de cor no selected */}
-          <ListItemButton 
-            selected={local.pathname === '/perfil'}
-            onClick={() => navegar('/perfil')}
-            sx={{ borderRadius: 2, color: local.pathname === '/perfil' ? '#0056b3' : 'text.secondary', '&.Mui-selected': { bgcolor: '#f0f7ff' } }}
-          >
+          <ListItemButton selected={local.pathname === '/perfil'} onClick={() => navegar('/perfil')} sx={{ borderRadius: 2, color: local.pathname === '/perfil' ? '#0056b3' : 'text.secondary', '&.Mui-selected': { bgcolor: '#f0f7ff' } }}>
             <PersonOutlined sx={{ mr: 2, fontSize: 20 }} />
             <ListItemText primary={<Typography sx={{ fontSize: '0.9rem', fontWeight: local.pathname === '/perfil' ? 'bold' : 'medium' }}>Meu perfil</Typography>} />
           </ListItemButton>

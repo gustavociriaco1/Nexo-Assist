@@ -1,5 +1,5 @@
 import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button } from '@mui/material';
-
+import { useNavigate } from 'react-router-dom'; // <-- Nova importação
 // Tipagem estrita para os chamados na fila
 interface Chamado {
   id: string;
@@ -17,6 +17,7 @@ const chamadosMock: Chamado[] = [
 ];
 
 export default function ConsoleAtendente() {
+    const navegar = useNavigate(); // <-- Inicializar o hook
   return (
     <Box sx={{ maxWidth: 1100, mx: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -75,8 +76,15 @@ export default function ConsoleAtendente() {
                     }} 
                   />
                 </TableCell>
-                <TableCell align="right">
-                  <Button variant="outlined" size="small" disableElevation sx={{ textTransform: 'none', borderRadius: 1.5, fontWeight: 'bold' }}>
+               <TableCell align="right">
+                  {/* Adicionado o evento onClick para mudar de ecrã */}
+                  <Button 
+                    variant="outlined" 
+                    size="small" 
+                    disableElevation 
+                    onClick={() => navegar('/console/chat')} 
+                    sx={{ textTransform: 'none', borderRadius: 1.5, fontWeight: 'bold' }}
+                  >
                     {chamado.status === 'pendente' ? 'Assumir' : 'Ver chat'}
                   </Button>
                 </TableCell>
