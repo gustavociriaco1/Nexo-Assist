@@ -22,19 +22,40 @@ export default function Atendimento() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [novaMensagem, setNovaMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  // Cria o estado do ID dinâmico
+  const [idChamado, setIdChamado] = useState("");
+
+  // Ao carregar a tela, gera um ID aleatório no formato INC-XXXX (ex: INC-8492)
+  useEffect(() => {
+    // 1. Tenta recuperar o ID que já estava salvo no navegador
+    let idSalvo = localStorage.getItem("nexo_chamado_atual");
+
+    // 2. Se não existir nenhum salvo, cria um novo e guarda no navegador
+    if (!idSalvo) {
+      idSalvo = `INC-${Math.floor(1000 + Math.random() * 9000)}`;
+      localStorage.setItem("nexo_chamado_atual", idSalvo);
+    }
+
+    // 3. Define o estado com o ID correto
+    setIdChamado(idSalvo);
+  }, []);
   const fimDoChatRef = useRef<HTMLDivElement>(null);
 
   // Busca o histórico real no banco de dados
   const carregarMensagens = () => {
-    fetch("http://localhost:3000/api/chamados/INC-2041/mensagens")
+    if (!idChamado) return; // 1. Trava de segurança adicionada aqui
+
+    fetch(`http://localhost:3000/api/chamados/${idChamado}/mensagens`)
       .then((res) => res.json())
       .then((dados) => setMensagens(dados))
       .catch((erro) => console.error("Erro ao carregar:", erro));
   };
 
+  // 2. Dependência atualizada para observar o idChamado
   useEffect(() => {
     carregarMensagens();
-  }, []);
+  }, [idChamado]);
 
   // Faz o scroll automático para o fundo
   useEffect(() => {
@@ -54,7 +75,7 @@ export default function Atendimento() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chamado_id: "INC-2041",
+          chamado_id: idChamado,
           texto: texto,
           autor: "usuario",
         }),

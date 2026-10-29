@@ -34,44 +34,52 @@ router.get("/chamados/:id/mensagens", (req, res) => {
 router.post("/mensagens", (req, res) => {
   const { chamado_id, texto, autor } = req.body;
 
-  // Passo A: Grava a mensagem do utilizador no SQLite
   db.run(
-    `INSERT INTO mensagens (chamado_id, autor, texto) VALUES (?, ?, ?)`,
-    [chamado_id, autor, texto],
-    async function (err) {
+    `INSERT OR IGNORE INTO chamados (id, usuario_id, status, resumo_ia) VALUES (?, 1, 'pendente', 'Novo atendimento em andamento')`,
+    [chamado_id],
+    (err) => {
       if (err) return res.status(500).json({ erro: err.message });
 
-      // Se a mensagem veio do utilizador, a IA deve pensar e responder
-      if (autor === "usuario") {
-        try {
-          // Passo B: Envia o texto para o Gemini (via Mastra)
-          const respostaMastra = await agenteSuporte.generate(texto);
-          const textoIA = respostaMastra.text;
+      // Passo A: Grava a mensagem do utilizador no SQLite
+      db.run(
+        `INSERT INTO mensagens (chamado_id, autor, texto) VALUES (?, ?, ?)`,
+        [chamado_id, autor, texto],
+        async function (err2) {
+          if (err2) return res.status(500).json({ erro: err2.message });
 
-          // Passo C: Grava a resposta gerada pela IA no banco de dados
-          db.run(
-            `INSERT INTO mensagens (chamado_id, autor, texto) VALUES (?, 'ia', ?)`,
-            [chamado_id, textoIA],
-            function (err2) {
-              if (err2) return res.status(500).json({ erro: err2.message });
+          // Se a mensagem veio do utilizador, a IA deve pensar e responder
+          if (autor === "usuario") {
+            try {
+              // Passo B: Envia o texto para o Gemini (via Mastra)
+              const respostaMastra = await agenteSuporte.generate(texto);
+              const textoIA = respostaMastra.text;
 
-              // Devolve o sucesso e o texto da IA para a interface
-              res.json({ sucesso: true, resposta: textoIA });
-            },
-          );
-        } catch (erroIA) {
-          console.error("Erro na comunicação com a IA:", erroIA);
-          res.status(500).json({
-            erro: "O agente Nexo Assist está temporariamente indisponível.",
-          });
-        }
-      } else {
-        // Se for o analista humano a responder, apenas grava e confirma
-        res.json({
-          sucesso: true,
-          resposta: "Mensagem do analista registada com sucesso.",
-        });
-      }
+              // Passo C: Grava a resposta gerada pela IA no banco de dados
+              db.run(
+                `INSERT INTO mensagens (chamado_id, autor, texto) VALUES (?, 'ia', ?)`,
+                [chamado_id, textoIA],
+                function (err2) {
+                  if (err2) return res.status(500).json({ erro: err2.message });
+
+                  // Devolve o sucesso e o texto da IA para a interface
+                  res.json({ sucesso: true, resposta: textoIA });
+                },
+              );
+            } catch (erroIA) {
+              console.error("Erro na comunicação com a IA:", erroIA);
+              res.status(500).json({
+                erro: "O agente Nexo Assist está temporariamente indisponível.",
+              });
+            }
+          } else {
+            // Se for o analista humano a responder, apenas grava e confirma
+            res.json({
+              sucesso: true,
+              resposta: "Mensagem do analista registada com sucesso.",
+            });
+          }
+        },
+      );
     },
   );
 });

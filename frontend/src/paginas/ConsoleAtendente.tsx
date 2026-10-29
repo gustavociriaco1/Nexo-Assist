@@ -189,7 +189,7 @@ export default function ConsoleAtendente() {
                     variant="outlined"
                     size="small"
                     disableElevation
-                    onClick={() => navegar("/console/chat")}
+                    onClick={() => navegar(`/console/chat/${chamado.id}`)}
                     sx={{
                       textTransform: "none",
                       borderRadius: 1.5,

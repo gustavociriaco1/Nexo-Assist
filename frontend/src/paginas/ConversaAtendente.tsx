@@ -23,7 +23,7 @@ import {
   CheckCircleOutlined,
   ArrowBack,
 } from "@mui/icons-material";
-
+import { useParams } from "react-router-dom";
 interface Mensagem {
   id: number;
   chamado_id: string;
@@ -36,12 +36,12 @@ export default function ConversaAtendente() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [novaMensagem, setNovaMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
-
+  const { id } = useParams(); // Captura o ID (ex: INC-6420) da URL
   // Referência para rolar automaticamente para o final do chat
   const fimDoChatRef = useRef<HTMLDivElement>(null);
 
   const carregarMensagens = () => {
-    fetch("http://localhost:3000/api/chamados/INC-2041/mensagens")
+    fetch(`http://localhost:3000/api/chamados/${id}/mensagens`)
       .then((res) => res.json())
       .then((dados) => setMensagens(dados))
       .catch((erro) => console.error("Erro ao carregar chat:", erro));
