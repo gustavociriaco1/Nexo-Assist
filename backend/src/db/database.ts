@@ -17,17 +17,18 @@ function inicializarTabelas() {
   db.serialize(() => {
     // 1. Tabela de Usuários (Clientes e Atendentes)
     db.run(`CREATE TABLE IF NOT EXISTS usuarios (
-      id TEXT PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       departamento TEXT,
-      perfil TEXT NOT NULL -- 'cliente' ou 'atendente'
+      perfil TEXT,
+      senha TEXT
     )`);
 
     // 2. Tabela de Chamados (Fila de TI)
     db.run(`CREATE TABLE IF NOT EXISTS chamados (
       id TEXT PRIMARY KEY,
-      usuario_id TEXT NOT NULL,
+      usuario_id INTEGER NOT NULL,
       status TEXT NOT NULL, -- 'pendente', 'em_andamento', 'resolvido'
       resumo_ia TEXT,
       data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,

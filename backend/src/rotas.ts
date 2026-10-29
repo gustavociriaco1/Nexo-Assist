@@ -1,10 +1,9 @@
 import { Router } from "express";
 import db from "./db/database";
-import { agenteSuporte } from "./agente"; // <-- 1. Importar o nosso agente com Gemini
+import { agenteSuporte } from "./agente";
 
 const router = Router();
 
-// Rota para buscar a fila de chamados
 router.get("/chamados", (req, res) => {
   const query = `
     SELECT c.id, c.status, c.resumo_ia, c.data_criacao, u.nome as usuario, u.departamento 
@@ -46,9 +45,7 @@ router.post("/mensagens", (req, res) => {
       if (autor === "usuario") {
         try {
           // Passo B: Envia o texto para o Gemini (via Mastra)
-          const respostaMastra = await agenteSuporte.generate([
-            { role: "user", content: texto },
-          ]);
+          const respostaMastra = await agenteSuporte.generate(texto);
           const textoIA = respostaMastra.text;
 
           // Passo C: Grava a resposta gerada pela IA no banco de dados

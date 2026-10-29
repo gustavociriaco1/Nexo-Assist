@@ -1,24 +1,56 @@
 import db from "./database";
 
-console.log("🌱 A iniciar a injeção de dados de teste...");
+console.log("A iniciar a reconstrução do banco de dados...");
 
 db.serialize(() => {
-  // 1. Inserir Usuários (Ignora se já existirem)
-  db.run(`INSERT OR IGNORE INTO usuarios (id, nome, email, departamento, perfil) VALUES 
-    ('U1', 'Ana Souza', 'ana.souza@nexo.com.br', 'Financeiro', 'cliente'),
-    ('A1', 'Rafael Lima', 'rafael.lima@nexo.com.br', 'Suporte N2', 'atendente')
+  db.run(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nome TEXT,
+      email TEXT UNIQUE,
+      departamento TEXT,
+      senha TEXT
+    )
   `);
 
-  // 2. Inserir um Chamado de teste
-  db.run(`INSERT OR IGNORE INTO chamados (id, usuario_id, status, resumo_ia) VALUES 
-    ('INC-2041', 'U1', 'pendente', 'Falha de conexão com a VPN corporativa.')
+  db.run(`
+    CREATE TABLE IF NOT EXISTS chamados (
+      id TEXT PRIMARY KEY,
+      usuario_id INTEGER,
+      status TEXT,
+      resumo_ia TEXT,
+      data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    )
   `);
 
-  // 3. Inserir o histórico inicial de mensagens
-  db.run(`INSERT OR IGNORE INTO mensagens (chamado_id, autor, texto) VALUES 
-    ('INC-2041', 'ia', 'Olá, Ana. Sou o Nexo Assist. Como posso ajudar com o seu equipamento ou acesso hoje?'),
-    ('INC-2041', 'usuario', 'Minha VPN não conecta desde a atualização.')
+  db.run(`
+    CREATE TABLE IF NOT EXISTS mensagens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chamado_id TEXT,
+      autor TEXT,
+      texto TEXT,
+      data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (chamado_id) REFERENCES chamados(id)
+    )
   `);
 
-  console.log("✅ Dados de teste inseridos com sucesso no SQLite!");
+  db.run(`
+    INSERT OR IGNORE INTO usuarios (id, nome, email, departamento, senha) 
+    VALUES (1, 'Ana Souza', 'ana.souza@nexo.com.br', 'Financeiro', '123')
+  `);
+
+  db.run(
+    `
+    INSERT OR REPLACE INTO chamados (id, usuario_id, status, resumo_ia) 
+    VALUES ('INC-2041', 1, 'pendente', 'Problema com a VPN após a atualização')
+  `,
+    (err) => {
+      if (err) {
+        console.error("Erro ao inserir chamado:", err);
+      } else {
+        console.log("✅ Banco de dados reconstruído e populado com sucesso!");
+      }
+    },
+  );
 });
