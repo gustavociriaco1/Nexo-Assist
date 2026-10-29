@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-// Tipagem atualizada para coincidir exatamente com o retorno do SQLite
 interface Chamado {
   id: string;
   usuario: string;
@@ -29,14 +28,12 @@ export default function ConsoleAtendente() {
   const [chamados, setChamados] = useState<Chamado[]>([]);
 
   useEffect(() => {
-    // 1. Faz a chamada real ao servidor Node.js
     fetch("http://localhost:3000/api/chamados")
       .then((resposta) => resposta.json())
       .then((dados) => setChamados(dados))
       .catch((erro) => console.error("Erro ao carregar chamados:", erro));
   }, []);
 
-  // Calcula os totais para os cartões de resumo
   const totalPendentes = chamados.filter((c) => c.status === "pendente").length;
   const totalEmAndamento = chamados.filter(
     (c) => c.status === "em_andamento",

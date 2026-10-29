@@ -36,8 +36,7 @@ export default function ConversaAtendente() {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [novaMensagem, setNovaMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
-  const { id } = useParams(); // Captura o ID (ex: INC-6420) da URL
-  // Referência para rolar automaticamente para o final do chat
+  const { id } = useParams();
   const fimDoChatRef = useRef<HTMLDivElement>(null);
 
   const carregarMensagens = () => {
@@ -51,7 +50,6 @@ export default function ConversaAtendente() {
     carregarMensagens();
   }, []);
 
-  // Rola para a última mensagem sempre que a lista de mensagens for atualizada
   useEffect(() => {
     fimDoChatRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensagens, carregando]);
@@ -68,7 +66,7 @@ export default function ConversaAtendente() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chamado_id: "INC-2041",
+          chamado_id: id,
           texto: textoEnviado,
           autor: "usuario",
         }),

@@ -23,28 +23,22 @@ export default function Atendimento() {
   const [novaMensagem, setNovaMensagem] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  // Cria o estado do ID dinâmico
   const [idChamado, setIdChamado] = useState("");
 
-  // Ao carregar a tela, gera um ID aleatório no formato INC-XXXX (ex: INC-8492)
   useEffect(() => {
-    // 1. Tenta recuperar o ID que já estava salvo no navegador
     let idSalvo = localStorage.getItem("nexo_chamado_atual");
 
-    // 2. Se não existir nenhum salvo, cria um novo e guarda no navegador
     if (!idSalvo) {
       idSalvo = `INC-${Math.floor(1000 + Math.random() * 9000)}`;
       localStorage.setItem("nexo_chamado_atual", idSalvo);
     }
 
-    // 3. Define o estado com o ID correto
     setIdChamado(idSalvo);
   }, []);
   const fimDoChatRef = useRef<HTMLDivElement>(null);
 
-  // Busca o histórico real no banco de dados
   const carregarMensagens = () => {
-    if (!idChamado) return; // 1. Trava de segurança adicionada aqui
+    if (!idChamado) return;
 
     fetch(`http://localhost:3000/api/chamados/${idChamado}/mensagens`)
       .then((res) => res.json())
@@ -52,17 +46,14 @@ export default function Atendimento() {
       .catch((erro) => console.error("Erro ao carregar:", erro));
   };
 
-  // 2. Dependência atualizada para observar o idChamado
   useEffect(() => {
     carregarMensagens();
   }, [idChamado]);
 
-  // Faz o scroll automático para o fundo
   useEffect(() => {
     fimDoChatRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [mensagens, carregando]);
 
-  // Envia a mensagem e aciona a IA
   const enviarMensagem = async () => {
     if (!novaMensagem.trim()) return;
 
@@ -80,7 +71,7 @@ export default function Atendimento() {
           autor: "usuario",
         }),
       });
-      carregarMensagens(); // Recarrega para exibir a resposta da IA
+      carregarMensagens();
     } catch (erro) {
       console.error("Erro ao enviar:", erro);
     } finally {
