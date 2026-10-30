@@ -19,7 +19,7 @@ interface Chamado {
   usuario: string;
   departamento: string;
   resumo_ia: string;
-  status: "pendente" | "em_andamento" | "resolvido";
+  status: "pendente" | "aguardando" | "em_andamento" | "resolvido";
   data_criacao: string;
 }
 
@@ -34,10 +34,8 @@ export default function ConsoleAtendente() {
       .catch((erro) => console.error("Erro ao carregar chamados:", erro));
   }, []);
 
-  const totalPendentes = chamados.filter((c) => c.status === "pendente").length;
-  const totalEmAndamento = chamados.filter(
-    (c) => c.status === "em_andamento",
-  ).length;
+  const totalPendentes = chamados.filter((c) => c.status === "aguardando").length;
+const totalEmAndamento = chamados.filter((c) => c.status === "em_andamento").length;
 
   return (
     <Box sx={{ maxWidth: 1100, mx: "auto" }}>
@@ -163,39 +161,29 @@ export default function ConsoleAtendente() {
                   {new Date(chamado.data_criacao).toLocaleDateString("pt-BR")}
                 </TableCell>
                 <TableCell align="center">
-                  <Chip
-                    label={
-                      chamado.status === "pendente"
-                        ? "Aguardando"
-                        : "Em andamento"
-                    }
-                    size="small"
-                    sx={{
-                      bgcolor:
-                        chamado.status === "pendente" ? "#fef3c7" : "#e0f2fe",
-                      color:
-                        chamado.status === "pendente" ? "#b45309" : "#0369a1",
-                      fontWeight: "bold",
-                      fontSize: "0.75rem",
-                      borderRadius: 1.5,
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    disableElevation
-                    onClick={() => navegar(`/console/chat/${chamado.id}`)}
-                    sx={{
-                      textTransform: "none",
-                      borderRadius: 1.5,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {chamado.status === "pendente" ? "Assumir" : "Ver chat"}
-                  </Button>
-                </TableCell>
+  <Chip
+    label={chamado.status === "aguardando" ? "Aguardando" : "Em andamento"}
+    size="small"
+    sx={{
+      bgcolor: chamado.status === "aguardando" ? "#fef3c7" : "#e0f2fe",
+      color: chamado.status === "aguardando" ? "#b45309" : "#0369a1",
+      fontWeight: "bold",
+      fontSize: "0.75rem",
+      borderRadius: 1.5,
+    }}
+  />
+</TableCell>
+<TableCell align="right">
+  <Button
+    variant="outlined"
+    size="small"
+    disableElevation
+    onClick={() => navegar(`/console/chat/${chamado.id}`)}
+    sx={{ textTransform: "none", borderRadius: 1.5, fontWeight: "bold" }}
+  >
+    {chamado.status === "aguardando" ? "Assumir" : "Ver chat"}
+  </Button>
+</TableCell>
               </TableRow>
             ))}
             {/* Mensagem caso a fila esteja vazia */}

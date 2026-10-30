@@ -52,17 +52,33 @@ router.post("/mensagens", (req, res) => {
             try {
               // Passo B: Envia o texto para o Gemini (via Mastra)
               const respostaMastra = await agenteSuporte.generate(texto);
-              const textoIA = respostaMastra.text;
+              const textoBrutoIA = respostaMastra.text;
 
-              // Passo C: Grava a resposta gerada pela IA no banco de dados
+              // VERIFICAÇÃO DE TRANSBORDO: Procura a tag e limpa o texto
+              const precisaEscalar = textoBrutoIA.includes("[ESCALAR_CHAMADO]");
+              const textoLimpo = textoBrutoIA.replace("[ESCALAR_CHAMADO]", "").trim();
+
+              // Passo C: Grava a resposta gerada pela IA (sem a tag) no banco
               db.run(
                 `INSERT INTO mensagens (chamado_id, autor, texto) VALUES (?, 'ia', ?)`,
-                [chamado_id, textoIA],
-                function (err2) {
-                  if (err2) return res.status(500).json({ erro: err2.message });
+                [chamado_id, textoLimpo],
+                function (err3) {
+                  if (err3) return res.status(500).json({ erro: err3.message });
 
-                  // Devolve o sucesso e o texto da IA para a interface
-                  res.json({ sucesso: true, resposta: textoIA });
+                  // Passo D: Atualiza o status se a IA decidiu escalar
+                  if (precisaEscalar) {
+                    db.run(
+                      `UPDATE chamados SET status = 'aguardando' WHERE id = ?`,
+                      [chamado_id],
+                      (err4) => {
+                        if (err4) console.error("Erro ao escalar:", err4);
+                        res.json({ sucesso: true, resposta: textoLimpo, status: "aguardando" });
+                      }
+                    );
+                  } else {
+                    // Responde normalmente sem escalar
+                    res.json({ sucesso: true, resposta: textoLimpo, status: "pendente" });
+                  }
                 },
               );
             } catch (erroIA) {
